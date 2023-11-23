@@ -9,11 +9,13 @@ public class Room {
 
     public Room(Integer id, Client host) {
         this.id = id;
-        clients.add(host);
+        this.addClient(host);
+        host.getConnection().addHandler("start", (payload) -> new Game(clients));
     }
 
     public void addClient(Client client) {
         clients.add(client);
+        client.getConnection().addHandler("leave", (payload) -> clients.remove(client));
     }
 
     public Integer getId() {

@@ -1,6 +1,7 @@
 package org.grotor.controllers;
 
 import org.grotor.event.EventHandler;
+import org.grotor.services.Client;
 
 import java.io.*;
 import java.net.Socket;
@@ -15,14 +16,18 @@ public class Connection extends Thread {
 
     public Connection(Socket socket) {
         this.socket = socket;
-        try {
-            this.writer = new PrintWriter(socket.getOutputStream(), true);
-            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.init();
+    }
 
+    private void init() {
+        try {
+            writer = new PrintWriter(socket.getOutputStream(), true);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         this.start();
+        new Client(this);
     }
 
     @Override
@@ -30,8 +35,9 @@ public class Connection extends Thread {
         try {
             while (true) {
                 String message = reader.readLine();
-                String event = message.split(":")[0];
-                String payload = message.split(":", 2)[1];
+                String[] split = message.split(":", 2);
+                String event = split[0];
+                String payload = split.length < 2 ? "" : split[1];
 
                 eventHandlers.get(event).handle(payload);
             }
@@ -46,5 +52,9 @@ public class Connection extends Thread {
 
     public void addHandler(String event, EventHandler eventHandler) {
         eventHandlers.put(event, eventHandler);
+    }
+
+    public void removeHandler(String event) {
+        eventHandlers.remove(event);
     }
 }

@@ -21,8 +21,10 @@ public class RoomManager {
         int id;
         do {
             id = rm.nextInt(100000, 1000000);
-        } while (!roomList.containsKey(id));
+        } while (roomList.containsKey(id));
         roomList.put(id, new Room(id, host));
+
+        host.getConnection().send("created", String.valueOf(id));
     }
 
     public Room getRoom(Integer id) {

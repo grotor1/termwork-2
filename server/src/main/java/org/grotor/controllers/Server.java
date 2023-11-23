@@ -6,7 +6,8 @@ import java.net.ServerSocket;
 public class Server {
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(2345)) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(2345);
             ConnectionManager connectionManager = new ConnectionManager(serverSocket);
             connectionManager.init();
         } catch (IOException e) {
