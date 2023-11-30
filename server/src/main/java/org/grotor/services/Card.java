@@ -1,5 +1,7 @@
 package org.grotor.services;
 
+import com.google.gson.Gson;
+
 import java.util.Objects;
 import java.util.Random;
 
@@ -38,6 +40,11 @@ public class Card {
         String color = COLORS[new Random().nextInt(COLORS.length)];
         String type = TYPES[new Random().nextInt(TYPES.length)];
         return new Card(color, type);
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 
     @Override

@@ -15,6 +15,7 @@ public class Room {
 
     public void addClient(Client client) {
         clients.add(client);
+        client.getConnection().send("connected", "");
         client.getConnection().addHandler("leave", (payload) -> clients.remove(client));
     }
 
