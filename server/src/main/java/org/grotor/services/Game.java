@@ -21,15 +21,18 @@ public class Game extends Thread {
         lastCard = Card.getRandomCard();
         currentPlayerIndex = 0;
 
-        for (int i = 0; i < players.size(); i++) {
-            players.get(i).updateLastCard(lastCard);
-            players.get(i).setIndex(i);
-        }
-
         for (int i = 0; i < INITIAL_CARDS; i++) {
             for (Player player : players) {
                 player.addCard(Card.getRandomCard());
             }
+        }
+
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).sendPlayersState(players);
+            players.get(i).updateLastCard(lastCard);
+            players.get(i).setIndex(i);
+            players.get(i).sendCurrentPlayer(currentPlayerIndex);
+            players.get(i).startGame();
         }
     }
 
@@ -52,11 +55,17 @@ public class Game extends Thread {
         currentPlayerIndex = reversed ?
                 (currentPlayerIndex == 0 ? players.size() : currentPlayerIndex) - 1 :
                 (currentPlayerIndex + 1) % players.size();
+
+        for (Player player : players) {
+            player.sendPlayersState(players);
+            player.updateLastCard(lastCard);
+            player.sendCurrentPlayer(currentPlayerIndex);
+        }
     }
 
     public void proceedCard(Card card) {
         String color;
-        switch (card.getColor()) {
+        switch (card.getType()) {
             case "reverse":
                 reversed = !reversed;
             case "+2":
@@ -89,21 +98,23 @@ public class Game extends Thread {
         }
     }
 
+    public boolean isAnyCardAcceptable(Player player) {
+        return player.getCards().stream().anyMatch(this::isCardAcceptable);
+    }
+
     public boolean isCardAcceptable(Card card) {
-        return !priorityColor.equals(card.getColor()) || !lastCard.compatible(card) || !getCurrentPlayer().deleteCard(card)
+        return (priorityColor == null || priorityColor.equals(card.getColor())) && lastCard.compatible(card) && getCurrentPlayer().isInHand(card);
     }
 
     @Override
     public void run() {
         this.init();
         while (players.stream().noneMatch(Player::isEmptyHand)) {
-            Card card = getCurrentPlayer().getCard();
-            while (isCardAcceptable(card)) {
-                card = getCurrentPlayer().getCard();
+            if (isAnyCardAcceptable(getCurrentPlayer())) {
+                getCard();
+            } else {
+                getCurrentPlayer().addCard(Card.getRandomCard());
             }
-            priorityColor = null;
-            lastCard = card;
-            proceedCard(card);
             makeTurn();
         }
 
@@ -113,5 +124,16 @@ public class Game extends Thread {
             int index = players.indexOf(w);
             players.forEach((player) -> player.sendWinner(index));
         });
+    }
+
+    private void getCard() {
+        Card card = getCurrentPlayer().getCard();
+        while (!isCardAcceptable(card)) {
+            card = getCurrentPlayer().getCard();
+        }
+        getCurrentPlayer().deleteCard(card);
+        priorityColor = null;
+        lastCard = card;
+        proceedCard(card);
     }
 }

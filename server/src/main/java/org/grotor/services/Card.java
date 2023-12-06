@@ -33,7 +33,7 @@ public class Card {
     }
 
     public boolean compatible(Card card) {
-        return card.type.equals(this.type) || card.color.equals(this.color);
+        return card.type.equals("+4color") || card.type.equals("color") || card.type.equals(this.type) || card.color.equals(this.color);
     }
 
     public static Card getRandomCard() {

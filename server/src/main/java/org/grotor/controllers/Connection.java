@@ -47,7 +47,7 @@ public class Connection extends Thread {
     }
 
     public void send(String event, String payload) {
-        writer.println(event + ":" + payload);
+        writer.println(event + (payload.isEmpty() ? "" : ":") + payload);
     }
 
     public void addHandler(String event, EventHandler eventHandler) {
