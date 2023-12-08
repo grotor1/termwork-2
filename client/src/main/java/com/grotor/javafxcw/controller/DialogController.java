@@ -15,6 +15,8 @@ public class DialogController {
     @FXML
     private TextArea history;
     @FXML
+    private TextArea history1;
+    @FXML
     private TextField input;
 
     private Socket socket;
@@ -25,7 +27,7 @@ public class DialogController {
         try {
             this.socket = new Socket("localhost", 2345);
             this.writer = new PrintWriter(socket.getOutputStream(), true);
-            new ListenerThread(history, socket).start();
+            new ListenerThread(history1, socket).start();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

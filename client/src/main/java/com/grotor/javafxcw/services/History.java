@@ -1,5 +1,6 @@
 package com.grotor.javafxcw.services;
 
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
 public class History {
@@ -10,10 +11,10 @@ public class History {
     }
 
     public void addHistory(String message) {
-        String history = this.history.getText();
+        Platform.runLater(() -> {
+            String history = this.history.getText();
 
-        System.out.println(message);
-
-        this.history.setText(history + "\n\n" + message);
+            this.history.setText(history + "\n\n" + message);
+        });
     }
 }
