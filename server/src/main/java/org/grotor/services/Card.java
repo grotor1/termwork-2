@@ -42,6 +42,12 @@ public class Card {
         return new Card(color, type);
     }
 
+    public static Card getRandomCardInit() {
+        String color = COLORS[new Random().nextInt(COLORS.length)];
+        String type = TYPES[new Random().nextInt(TYPES.length - 2)];
+        return new Card(color, type);
+    }
+
     @Override
     public String toString() {
         return new Gson().toJson(this);

@@ -18,11 +18,14 @@ public class Game extends Thread {
     }
 
     public void init() {
-        lastCard = Card.getRandomCard();
+        lastCard = Card.getRandomCardInit();
         currentPlayerIndex = 0;
+        for (Player player : players) {
+            player.startGame();
+        }
 
-        for (int i = 0; i < INITIAL_CARDS; i++) {
-            for (Player player : players) {
+        for (Player player : players) {
+            for (int j = 0; j < INITIAL_CARDS; j++) {
                 player.addCard(Card.getRandomCard());
             }
         }
@@ -32,7 +35,6 @@ public class Game extends Thread {
             players.get(i).updateLastCard(lastCard);
             players.get(i).setIndex(i);
             players.get(i).sendCurrentPlayer(currentPlayerIndex);
-            players.get(i).startGame();
         }
     }
 
@@ -58,7 +60,10 @@ public class Game extends Thread {
 
         for (Player player : players) {
             player.sendPlayersState(players);
-            player.updateLastCard(lastCard);
+            System.out.println(priorityColor);
+            if (priorityColor == null) {
+                player.updateLastCard(lastCard);
+            }
             player.sendCurrentPlayer(currentPlayerIndex);
         }
     }
@@ -103,7 +108,7 @@ public class Game extends Thread {
     }
 
     public boolean isCardAcceptable(Card card) {
-        return (priorityColor == null || priorityColor.equals(card.getColor())) && lastCard.compatible(card) && getCurrentPlayer().isInHand(card);
+        return priorityColor == null ? lastCard.compatible(card) && getCurrentPlayer().isInHand(card) : priorityColor.equals(card.getColor());
     }
 
     @Override
